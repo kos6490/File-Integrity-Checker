@@ -10,7 +10,7 @@ try:
 
     hash_result = hash_object.hexdigest()
 
-    with open('../temp/hash.txt', 'a', encoding='utf-8') as f:
+    with open('../temp/hash.txt', 'a', encoding = 'utf-8') as f:
         f.write(f"{filePath} : {hash_result}\n")
 
     print(f"해시 값 계산 완료 : {filePath} : {hash_result}")
