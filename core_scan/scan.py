@@ -82,5 +82,3 @@ def scanDirectoryToDict(scan_dir): #변경된 파일을 감지하기 위한 스�
         print(f"{RED}[오류] {filePath} 파일을 찾을 수 없습니다.{END}\n")
     except Exception as e:
         print(f"{RED}[오류] {filePath} : 알 수 없는 오류가 발생했습니다.{END}\n")
-
-scanDirectoryToTxt('../temp', '../temp/base_hash.txt')
