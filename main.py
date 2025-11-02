@@ -18,7 +18,7 @@ elif 0 <= len(sys.argv) <= 2:
 filePath = sys.argv[2]
 output_filePath = os.path.join(filePath, 'base_hash.txt')
 
-if sys.argv[1] == 'create':
+if sys.argv[1] == 'scan':
     scanDirectoryToTxt(filePath, output_filePath)
 elif sys.argv[1] == 'check':
     compare_hashes(filePath, output_filePath)
