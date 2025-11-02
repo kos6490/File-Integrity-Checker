@@ -1,8 +1,10 @@
+#sha256 + os_walk logic
+
 import hashlib
 import os
 
 scan_dir = '../temp'
-output_filePath = '../temp/basic_hash.txt'
+output_filePath = '../temp/base_hash.txt'
 
 try:
     with open(output_filePath, 'w', encoding = 'utf-8') as f_out:
@@ -10,7 +12,7 @@ try:
 
         for path, dir, files in os.walk(scan_dir):
             for file in files:
-                if file == 'basic_hash.txt':
+                if file == 'base_hash.txt':
                     continue
 
                 filePath = os.path.join(path, file)
