@@ -12,7 +12,7 @@ END = '\033[0m'
 def scanDirectoryToTxt(scan_dir, output_filePath): #최초 스캔, 결과를 base_hash.txt에 저장
     try:
         with open(output_filePath, 'w', encoding = 'utf-8') as f_out:
-            print(f"[{scan_dir}] 폴더를 스캔합니다...\n")
+            print(f"\n[{scan_dir}] 폴더를 스캔합니다...\n")
 
             for path, dir, files in os.walk(scan_dir):
                 for file in files:

@@ -31,3 +31,5 @@ def compare_hashes(scan_dir, output_filePath):
     for path, hash in past_hashes.items():
         if path not in current_hashes:
             print(f'{RED}[삭제된 파일] : {path}{END}')
+    
+    print()
