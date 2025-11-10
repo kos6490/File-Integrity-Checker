@@ -64,7 +64,7 @@ class TerminalApp:
             print()
             
         except FileNotFoundError:
-            print(f"{RED}[오류] {self.filePath} 파일을 찾을 수 없습니다.{END}\n")
+            print(f"{RED}[오류] '{self.filePath}'의 최초 스캔을 먼저 해주세요.{END}\n")
         except PermissionError:
             print(f"{RED}[오류] {self.filePath} 파일을 읽을 권한이 없습니다.{END}\n")
         except Exception as e:

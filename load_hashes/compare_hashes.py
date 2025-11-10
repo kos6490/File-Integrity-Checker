@@ -1,6 +1,5 @@
-import sys, os
-
 from load_hashes.read_hashes import readBaseHash
+import sys, os
 
 def compare_hashes(scan_dir, output_filePath, current_hashes):
     try:
