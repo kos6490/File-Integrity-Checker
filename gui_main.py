@@ -143,6 +143,12 @@ class GuiApp:
                 text.update_idletasks()
                 text.see(END)
 
+            text.insert(END, f"\n\n동일한 파일 개수 : {len(same)}\n")
+            text.insert(END, f"생성된 파일 개수 : {len(new)}\n")
+            text.insert(END, f"변경된 파일 개수 : {len(change)}\n")
+            text.insert(END, f"삭제된 파일 개수 : {len(delete)}\n")
+            text.insert(END, f"거부된 파일 개수 : {len(error)}\n")
+
             text.see(END)
             text.config(state = DISABLED)
 
@@ -158,6 +164,6 @@ class GuiApp:
     def run(self):
         self.win.mainloop()
 
-app = GuiApp()
-
-app.run()
+if __name__ == "__main__": #gui_main.py가 직접 실행된 경우에만 실행
+    app = GuiApp()
+    app.run()

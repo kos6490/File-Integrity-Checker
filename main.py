@@ -79,7 +79,7 @@ class TerminalApp:
             print(f"{RED}[오류] scan/check 키워드를 정확히 입력하세요!\n{END}")
 
 
-if __name__ == "__main__": #터미널에서 실행한 경우에만 실행
+if __name__ == "__main__": #main.py가 직접 실행된 경우에만 실행
     if len(sys.argv) != 3:
             print(f"{RED}[오류] scan/check와 파일 경로를 하나씩 입력하세요!\n{END}")
             sys.exit()
