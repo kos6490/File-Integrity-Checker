@@ -51,12 +51,12 @@ class TerminalApp:
             print(f"\n\n===== [{self.filePath}] 폴더 무결성 검사 결과 =====\n")
             new, change, same, delete, error = compare_hashes(self.filePath, self.output_filePath, current_hashes)
 
+            for path in same:
+                print(f'{BLUE}[동일한 파일] : {path}{END}')
             for path in new:
                 print(f'{GREEN}[생성된 파일] : {path}{END}')
             for path in change:
                 print(f'{YELLOW}[변경된 파일] : {path}{END}')
-            for path in same:
-                print(f'{BLUE}[동일한 파일] : {path}{END}')
             for path in delete:
                 print(f'{RED}[삭제된 파일] : {path}{END}')
             for path in error:
