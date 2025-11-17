@@ -97,7 +97,7 @@ class GuiApp:
 
         if selected_path:
             self.path.set(selected_path)
-            self.output_filePath = os.path.join(self.path.get(), "base_hash.txt")
+            self.output_filePath = os.path.join(self.path.get(), ".base_hash")
 
             self.firstScan_result.set("")  # 새로운 경로가 선택되면 이전 값들을 초기화
             self.integrityCheck_result.set("")

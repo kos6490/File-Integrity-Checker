@@ -14,7 +14,7 @@ class TerminalApp:
     def __init__(self, argv):
         self.action = sys.argv[1]
         self.filePath = sys.argv[2]
-        self.output_filePath = os.path.join(self.filePath, "base_hash.txt")
+        self.output_filePath = os.path.join(self.filePath, ".base_hash")
 
     def firstScan(self):
         try:
