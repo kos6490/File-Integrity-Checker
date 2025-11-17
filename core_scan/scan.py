@@ -4,7 +4,7 @@ import os
 
 def scanDirectoryToTxt(
     scan_dir, output_filePath
-):  # 최초 스캔, 결과를 base_hash.txt에 저장
+):  # 최초 스캔, 결과를 .base_hash에 저장
     success_filePath = list()
     try:
         with open(output_filePath, "w", encoding="utf-8") as f_out:
@@ -50,7 +50,7 @@ def scanDirectoryToDict(
 
         for path, dir, files in os.walk(scan_dir):
             for file in files:
-                if file == "base_hash.txt":
+                if file == ".base_hash":
                     continue
 
                 filePath = os.path.join(path, file)
