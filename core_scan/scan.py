@@ -1,13 +1,16 @@
 import hashlib
 import os
 
-def scanDirectoryToTxt(scan_dir, output_filePath): #최초 스캔, 결과를 base_hash.txt에 저장
+
+def scanDirectoryToTxt(
+    scan_dir, output_filePath
+):  # 최초 스캔, 결과를 .base_hash에 저장
     success_filePath = list()
     try:
-        with open(output_filePath, 'w', encoding = 'utf-8') as f_out:
+        with open(output_filePath, "w", encoding="utf-8") as f_out:
             for path, dir, files in os.walk(scan_dir):
                 for file in files:
-                    if file == 'base_hash.txt':
+                    if file == ".base_hash":
                         continue
 
                     filePath = os.path.join(path, file)
@@ -15,7 +18,7 @@ def scanDirectoryToTxt(scan_dir, output_filePath): #최초 스캔, 결과를 bas
                     try:
                         hash_object = hashlib.sha256()
 
-                        with open(filePath, 'rb') as f_in:
+                        with open(filePath, "rb") as f_in:
                             while chunk := f_in.read(4096):
                                 hash_object.update(chunk)
 
@@ -38,13 +41,16 @@ def scanDirectoryToTxt(scan_dir, output_filePath): #최초 스캔, 결과를 bas
     except Exception as e:
         raise Exception(e)
 
-def scanDirectoryToDict(scan_dir): #변경된 파일을 감지하기 위한 스캔, 결과를 딕셔너리로 반환
+
+def scanDirectoryToDict(
+    scan_dir,
+):  # 변경된 파일을 감지하기 위한 스캔, 결과를 딕셔너리로 반환
     try:
         hash_dict = {}
 
         for path, dir, files in os.walk(scan_dir):
             for file in files:
-                if file == 'base_hash.txt':
+                if file == ".base_hash":
                     continue
 
                 filePath = os.path.join(path, file)
@@ -52,7 +58,7 @@ def scanDirectoryToDict(scan_dir): #변경된 파일을 감지하기 위한 스�
                 try:
                     hash_object = hashlib.sha256()
 
-                    with open(filePath, 'rb') as f:
+                    with open(filePath, "rb") as f:
                         while chunk := f.read(4096):
                             hash_object.update(chunk)
 
