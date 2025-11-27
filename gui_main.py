@@ -2,6 +2,8 @@ from core_scan.scan import scanDirectoryToTxt, scanDirectoryToDict
 from load_hashes.compare_hashes import compare_hashes
 from gui.file_explorer import setFilePath
 from tkinter import *
+from tkinter import ttk
+import threading
 import os
 
 
@@ -22,6 +24,8 @@ class GuiApp:
         self.filePath = None
         self.firstScanResult = None
         self.integrityCheckResult = None
+
+        self.loading_win = None
 
         self.setGui()
 
@@ -77,7 +81,7 @@ class GuiApp:
             height=2,
             overrelief="flat",
             font="맑은고딕 10",
-            command=self.firstScan,
+            command=self.firstScan_thread,
         )
         scanButton.place(x=50, y=145)
 
@@ -88,7 +92,7 @@ class GuiApp:
             height=2,
             overrelief="flat",
             font="맑은고딕 10",
-            command=self.integrityCheck,
+            command=self.integrityCheck_thread,
         )
         checkButton.place(x=50, y=215)
 
@@ -102,54 +106,82 @@ class GuiApp:
             self.firstScan_result.set("")  # 새로운 경로가 선택되면 이전 값들을 초기화
             self.integrityCheck_result.set("")
 
-    def firstScan(self):
+    def show_loading(self, message="작업 중입니다..."):
+        self.loading_win = Toplevel(self.win)
+        self.loading_win.title("진행 중")
+        self.loading_win.geometry("350x120")
+        self.loading_win.resizable(False, False)
+
+        try:
+            x = self.win.winfo_x() + (600 // 2) - (350 // 2)
+            y = self.win.winfo_y() + (300 // 2) - (120 // 2)
+            self.loading_win.geometry(f"350x120+{x}+{y}")
+        except:
+            pass
+
+        self.loading_win.grab_set()
+
+        Label(
+            self.loading_win, text=message, font="맑은고딕 10", justify="center"
+        ).pack(pady=15)
+
+        progress = ttk.Progressbar(self.loading_win, mode="indeterminate", length=250)
+        progress.pack(pady=5)
+        progress.start(10)
+
+    def close_loading(self):
+        if self.loading_win:
+            self.loading_win.destroy()
+            self.loading_win = None
+
+    def firstScan_thread(self):
         if not self.path.get():
             self.firstScan_result.set(
                 "스캔을 실패했습니다. 파일 경로를 먼저 선택해주세요."
             )
             return
 
+        self.show_loading(
+            "파일을 스캔 중입니다...\n파일 개수에 따라 시간이 소요될 수 있습니다."
+        )
+        threading.Thread(target=self.firstScan, daemon=True).start()
+
+    def firstScan(self):
+        msg = ""
         try:
             scan_results = scanDirectoryToTxt(self.path.get(), self.output_filePath)
 
             if scan_results:
+                has_error = False
                 for item in scan_results:
                     if isinstance(item, tuple):
                         filePath, error = item
-
                         if error == "Permission Denied":
-                            self.firstScan_result.set(
-                                "스캔을 실패했습니다. 파일을 읽을 권한이 없습니다!"
-                            )
-                            return
+                            msg = "스캔 실패 : 일부 파일을 읽을 권한이 없습니다!"
+                            has_error = True
+                            break
                         elif error == "Error":
-                            self.firstScan_result.set(
-                                "스캔을 실패했습니다. 권한과 파일 경로 확인 후 다시 시도하세요!"
-                            )
-                            return
-                    else:
-                        continue
+                            msg = "스캔 실패 : 알 수 없는 오류가 발생했습니다!"
+                            has_error = True
+                            break
 
-                self.firstScan_result.set("폴더 스캔을 완료했습니다.")
+                if not has_error:
+                    msg = "폴더 스캔을 완료했습니다."
             else:
-                self.firstScan_result.set(
-                    "스캔을 실패했습니다. 권한과 파일 경로 확인 후 다시 시도하세요."
-                )
+                msg = "스캔을 실패했습니다. 권한과 파일 경로 확인 후 다시 시도하세요."
 
         except FileNotFoundError:
-            self.firstScan_result.set(
-                "스캔을 실패했습니다. 파일 경로를 재선택해주세요."
-            )
+            msg = "스캔을 실패했습니다. 파일 경로를 재선택해주세요."
         except PermissionError:
-            self.firstScan_result.set(
-                "스캔을 실패했습니다. 파일을 읽을 권한이 없습니다!"
-            )
+            msg = "스캔을 실패했습니다. 파일을 읽을 권한이 없습니다!"
         except Exception as e:
-            self.firstScan_result.set(
-                "스캔을 실패했습니다. 권한과 파일 경로 확인 후 다시 시도하세요!"
-            )
+            msg = f"스캔 실패 : {e}"
 
-    def integrityCheck(self):
+        finally:
+            self.win.after(0, self.close_loading)
+            self.win.after(0, lambda: self.firstScan_result.set(msg))
+
+    def integrityCheck_thread(self):
         if not self.path.get():
             self.integrityCheck_result.set(
                 "검사를 실패했습니다. 파일 경로를 먼저 선택해주세요."
@@ -162,11 +194,50 @@ class GuiApp:
             )
             return
 
+        self.show_loading(
+            "무결성 검사 중입니다...\n파일 개수에 따라 시간이 소요될 수 있습니다."
+        )
+        threading.Thread(target=self.integrityCheck, daemon=True).start()
+
+    def integrityCheck(self):
         try:
             current_hashes = scanDirectoryToDict(
                 self.path.get()
             )  # 변경된 파일을 감지하기 위한 해시 값 불러오기
 
+            results = compare_hashes(
+                self.path.get(), self.output_filePath, current_hashes
+            )
+
+            self.win.after(0, self.close_loading)
+            self.win.after(0, lambda: self.show_check_result_window(results))
+
+        except FileNotFoundError:
+            self.win.after(0, self.close_loading)
+            self.win.after(
+                0,
+                lambda: self.integrityCheck_result.set(
+                    "스캔을 실패했습니다. 파일을 읽을 권한이 없습니다!"
+                ),
+            )
+        except PermissionError:
+            self.win.after(0, self.close_loading)
+            self.win.after(
+                0,
+                lambda: self.integrityCheck_result.set(
+                    "스캔을 실패했습니다. 파일을 읽을 권한이 없습니다!"
+                ),
+            )
+        except Exception as e:
+            self.win.after(0, self.close_loading)
+            self.win.after(
+                0, lambda: self.integrityCheck_result.set(f"오류 발생 : {e}")
+            )
+
+    def show_check_result_window(self, results):
+        new, change, same, delete, rename, error = results
+
+        try:
             check_results = Toplevel(self.win)
             check_results.title("무결성 검사 결과...")
             check_results.geometry("1000x500")
@@ -197,10 +268,6 @@ class GuiApp:
                 self.win
             )  # 검사 결과 창이 닫히기 전에 메인 프로그램 창을 제어할 수 없도록 설정
             check_results.grab_set()
-
-            new, change, same, delete, rename, error = compare_hashes(
-                self.path.get(), self.output_filePath, current_hashes
-            )
 
             for path in same:
                 text.insert(END, "[동일한 파일] : " + path + "\n", "same")
@@ -239,18 +306,8 @@ class GuiApp:
 
             self.integrityCheck_result.set("검사를 성공했습니다!")
 
-        except FileNotFoundError:
-            self.integrityCheck_result.set(
-                "검사를 실패했습니다. 최초 스캔을 먼저 해주세요."
-            )
-        except PermissionError:
-            self.integrityCheck_result.set(
-                "검사를 실패했습니다. 파일을 읽을 권한이 없습니다!"
-            )
         except Exception as e:
-            self.integrityCheck_result.set(
-                "검사를 실패했습니다. 권한과 파일 경로 확인 후 다시 시도하세요!"
-            )
+            self.integrityCheck_result.set(f"결과창 생성 오류: {e}")
 
     def run(self):
         self.win.mainloop()
